@@ -3,17 +3,17 @@
     "layer": {
         "name": "VK_LAYER_LMJ_test",
         "type": "GLOBAL",
-        "library_path": "VkLayer_lmj_test.dll",
+        "library_path": "Vk_Layer_lmj_test.dll",
         "api_version": "1.2.141",
         "implementation_version": "1",
-        "description": "custom test Layer",
+        "description": "custom Layer",
         "platforms": [ "WINDOWS", "LINUX" ],
         "functions": {
             "vkNegotiateLoaderLayerInterfaceVersion": "MyVkLayer_NegotiateLoaderLayerInterfaceVersion",
             "vkGetInstanceProcAddr": "MyVkLayer_GetInstanceProcAddr",
-            "vkGetDeviceProcAddr": "MyVkLayer_GetDeviceProcAddr",
-            "vkCreateInstance": "MyVkLayer_CreateInstance",
-            "vkCreateDevice": "MyVkLayer_CreateDevice"
+            "vkGetDeviceProcAddr": "MyVkLayer_GetDeviceProcAddr"
+            //,"vkCreateInstance": "MyVkLayer_CreateInstance",
+            //"vkCreateDevice": "MyVkLayer_CreateDevice"
         },
         "enable_environment": {
             "VK_LMJ_TEST_ENABLE": "1"

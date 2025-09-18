@@ -1,8 +1,8 @@
 #include "vk_layer_func.h"
 #include <assert.h>
 
-std::unordered_map<VkInstance, VkLayerInstanceDispatchTable*> instance_dispatch;
-std::unordered_map<VkDevice, VkLayerDeviceDispatchTable*> device_dispatch;
+std::unordered_map<VkInstance, VkLayerInstanceDispatchTable> instance_dispatch;
+std::unordered_map<VkDevice, VkLayerDeviceDispatchTable> device_dispatch;
 
 VkInstance* gInstance = nullptr;
 VkDevice* gDevice = nullptr;
@@ -25,16 +25,17 @@ VkLayerDeviceCreateInfo *get_chain_info(const VkDeviceCreateInfo *pCreateInfo, V
     return chain_info;
 }
 
-void init_device_dispatch_table(VkDevice device, VkLayerDeviceDispatchTable* table, PFN_vkGetDeviceProcAddr addr)
+void init_device_dispatch_table(VkDevice device, VkLayerDeviceDispatchTable& table, PFN_vkGetDeviceProcAddr addr)
 {
-    memset(table, 0, sizeof(*table));
-    table->GetDeviceProcAddr = addr;
-    table->DestoryDevice = (PFN_vkDestroyDevice)addr(device, "vkDestroyDevice");
+    memset(&table, 0, sizeof(table));
+    table.GetDeviceProcAddr = addr;
+    //table.DestoryDevice = (PFN_vkDestroyDevice)addr(device, "vkDestroyDevice");
+    //...
 }
 
-void init_instance_dispatch_table(VkInstance instance, VkLayerInstanceDispatchTable* table, PFN_vkGetInstanceProcAddr addr)
+void init_instance_dispatch_table(VkInstance instance, VkLayerInstanceDispatchTable& table, PFN_vkGetInstanceProcAddr addr)
 {
-    memset(table, 0, sizeof(*table));
-    table->GetInstanceProcAddr = addr;
-    table->DestroyInstance = (PFN_vkDestroyInstance)addr(instance, "vkDestroyInstance");
+    memset(&table, 0, sizeof(table));
+    table.GetInstanceProcAddr = addr;
+    //...
 }

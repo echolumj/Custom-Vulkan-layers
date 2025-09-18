@@ -4,19 +4,14 @@ project(Vulkan-Layer)
 
 file(GLOB SOURCES ${CMAKE_SOURCE_DIR}/src/*.cpp)
 file(GLOB HEADERS ${CMAKE_SOURCE_DIR}/src/*.h)
- 
-add_executable(${PROJECT_NAME}
-    ${HEADERS}
+file(GLOB JSON ${CMAKE_SOURCE_DIR}/json/*.json)
+
+add_library(${PROJECT_NAME} SHARED 
     ${SOURCES}
 )
 
-# add_library(my_custom_layer SHARED ${CMAKE_SOURCE_DIR}/src/vk_layer_lmj_test.cpp)
-
-set_target_properties(Vulkan-Layer PROPERTIES
-    OUTPUT_NAME "VkLayer_lmj_test"  
-    PREFIX ""                     
-    SUFFIX ""                    
-)
+target_include_directories(${PROJECT_NAME} PUBLIC ${HEADERS})
+set_target_properties(${PROJECT_NAME} PROPERTIES OUTPUT_NAME  "VkLayer_lmj_test")
 
 # load vulkan
 find_package(Vulkan REQUIRED)
