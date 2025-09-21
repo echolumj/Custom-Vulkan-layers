@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "vk_layer_lmj_test.h"
 
-// --- Instance 链的扩展处理 ---
+
 VkResult MyVkLayer_CreateInstance(
     const VkInstanceCreateInfo* pCreateInfo,
     const VkAllocationCallbacks* pAllocator,
@@ -11,29 +11,29 @@ VkResult MyVkLayer_CreateInstance(
 {
     printf("MyVulkanLayer: vkCreateInstance called!\n");
 
-    // 1. 查找并调用下一层的 vkCreateInstance
+    // 1. Find and call vkCreateInstance of next layer
     VkLayerInstanceCreateInfo* chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
 
-    // 2. 获取下一层的 GetInstanceProcAddr 函数
+    // 2. get GetInstanceProcAddr of next layer
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
 
-    // 获取下一层的 vkCreateInstance 函数
+    // get vkCreateInstanceProcAddr of next layer
     PFN_vkCreateInstance fpCreateInstance = (PFN_vkCreateInstance)fpGetInstanceProcAddr(NULL, "vkCreateInstance");
     if (fpCreateInstance == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    // 3. 移动链指针，为下一层设置信息
+    // 3. set up information for the next layer.
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
 
-    // 4. 调用下一层的 vkCreateInstance
+    // 4. call vkCreateInstance of next layer
     VkResult result = fpCreateInstance(pCreateInfo, pAllocator, pInstance);
     if (result != VK_SUCCESS) {
         return result;
     }
 
-    gInstance = pInstance;
-    // 5. 为新建的 Instance 创建并初始化我们的分发表
+    //gInstance = pInstance;
+    // 5. create dispath table for current instance
     if(instance_dispatch.find(*pInstance) == instance_dispatch.end())
     {
         instance_dispatch[*pInstance] = VkLayerInstanceDispatchTable{};
@@ -44,7 +44,7 @@ VkResult MyVkLayer_CreateInstance(
     return VK_SUCCESS;
 }
 
-// --- 类似的 Device 函数 ---
+
 VkResult MyVkLayer_CreateDevice(
     VkPhysicalDevice physicalDevice,
     const VkDeviceCreateInfo* pCreateInfo,
@@ -53,31 +53,23 @@ VkResult MyVkLayer_CreateDevice(
 {
     printf("MyVulkanLayer: vkCreateDevice called!\n");
 
-     // 1. 查找并调用下一层的 vkCreateDevice
     VkLayerDeviceCreateInfo *chain_info = get_chain_info(pCreateInfo, VK_LAYER_LINK_INFO);
-
-    // 2. 获取下一层的 GetDeviceProcAddr 函数
     PFN_vkGetInstanceProcAddr fpGetInstanceProcAddr = chain_info->u.pLayerInfo->pfnNextGetInstanceProcAddr;
     PFN_vkGetDeviceProcAddr fpGetDeviceProcAddr = chain_info->u.pLayerInfo->pfnNextGetDeviceProcAddr;
 
-    // 获取下一层的 vkCreateDevice 函数
     PFN_vkCreateDevice fpCreateDevice = (PFN_vkCreateDevice)fpGetInstanceProcAddr(*gInstance, "vkCreateDevice");
     if (fpCreateDevice == NULL) {
         return VK_ERROR_INITIALIZATION_FAILED;
     }
 
-    // 3. 移动链指针，为下一层设置信息
     chain_info->u.pLayerInfo = chain_info->u.pLayerInfo->pNext;
-
-    // 4. 调用下一层的 vkCreateDevice
     VkResult ret = fpCreateDevice(physicalDevice, pCreateInfo, pAllocator, pDevice);
     if (ret != VK_SUCCESS) {
         return ret;
     }
 
-	gDevice = pDevice;
+	//gDevice = pDevice;
 
-    // 初始化设备的分发表
     if(device_dispatch.find(*pDevice) == device_dispatch.end())
     {
         device_dispatch[*pDevice] = VkLayerDeviceDispatchTable{};
@@ -88,7 +80,7 @@ VkResult MyVkLayer_CreateDevice(
     return VK_SUCCESS;
 }
 
-// --- 获取设备过程地址 ---
+
 PFN_vkVoidFunction MyVkLayer_GetDeviceProcAddr(VkDevice device, const char* pName) {
 
     // if name is NULL undefined is returned, let's return NULL
@@ -99,21 +91,17 @@ PFN_vkVoidFunction MyVkLayer_GetDeviceProcAddr(VkDevice device, const char* pNam
     DeviceHook(GetDeviceProcAddr);
     DeviceHook(CreateDevice);
 
-    //TODO: return not hooked instance-level functions if device is NULL
 
-    // 对于其他函数，从下一层的设备分发表中获取
-    if (device != VK_NULL_HANDLE) {
+    if (device == VK_NULL_HANDLE) {
         return NULL;
     }
 
-    //TODO: return hooked instance-level functions if device is not NULL
-    // 
+    //TODO: return hooked device-level functions if device is not NULL
     //TODO: update device dispatch table
     return device_dispatch[device].GetDeviceProcAddr(device, pName);
 }
 
-// --- 最核心的函数：获取实例过程地址 ---
-// Vulkan 加载器首先调用这个函数来获取我们 Layer 中实现的函数指针
+
 PFN_vkVoidFunction MyVkLayer_GetInstanceProcAddr(VkInstance instance, const char* pName) {
     
     // if name is NULL undefined is returned, let's return NULL
@@ -124,7 +112,6 @@ PFN_vkVoidFunction MyVkLayer_GetInstanceProcAddr(VkInstance instance, const char
     InstanceHook(GetInstanceProcAddr);
     InstanceHook(CreateInstance);
 
-    // 对于其他函数，如果 instance 不为 NULL，我们应该从下一层的分发表中获取
     if (instance == VK_NULL_HANDLE) {
         return NULL;
     }
@@ -141,10 +128,8 @@ VkResult MyVkLayer_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterfac
 {
     assert(pVersionStruct);
     assert(pVersionStruct->sType == LAYER_NEGOTIATE_INTERFACE_STRUCT);
-
     assert(pVersionStruct->loaderLayerInterfaceVersion >= 2);
 
-    /* Fill in struct values. */
     pVersionStruct->pfnGetInstanceProcAddr = &MyVkLayer_GetInstanceProcAddr;
     pVersionStruct->pfnGetDeviceProcAddr = &MyVkLayer_GetDeviceProcAddr;
 

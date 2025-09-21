@@ -16,4 +16,4 @@ extern "C" VK_API_EXPORT VkResult MyVkLayer_CreateDevice(
 
 extern "C" VK_API_EXPORT PFN_vkVoidFunction MyVkLayer_GetDeviceProcAddr(VkDevice device, const char* pName);
 extern "C" VK_API_EXPORT PFN_vkVoidFunction MyVkLayer_GetInstanceProcAddr(VkInstance instance, const char* pName);
-extern "C" VkResult MyVkLayer_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct);
+extern "C" VK_API_EXPORT VkResult MyVkLayer_NegotiateLoaderLayerInterfaceVersion(VkNegotiateLayerInterface* pVersionStruct);
