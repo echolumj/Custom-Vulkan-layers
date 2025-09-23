@@ -12,8 +12,6 @@
             "vkNegotiateLoaderLayerInterfaceVersion": "MyVkLayer_NegotiateLoaderLayerInterfaceVersion",
             "vkGetInstanceProcAddr": "MyVkLayer_GetInstanceProcAddr",
             "vkGetDeviceProcAddr": "MyVkLayer_GetDeviceProcAddr"
-            //,"vkCreateInstance": "MyVkLayer_CreateInstance",
-            //"vkCreateDevice": "MyVkLayer_CreateDevice"
         },
         "enable_environment": {
             "VK_LMJ_TEST_ENABLE": "1"
